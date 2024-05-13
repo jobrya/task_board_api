@@ -2,6 +2,8 @@ use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use crate::data::service;
 mod data;
 mod models;
+#[cfg(test)]
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
