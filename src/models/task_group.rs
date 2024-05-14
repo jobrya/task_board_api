@@ -1,5 +1,8 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct TaskGroup {
-    task_group_id: u32,
-    board_id: u32,
-    text: String,
+    pub task_group_id: u32,
+    pub board_id: u32,
+    pub text: String,
 }
