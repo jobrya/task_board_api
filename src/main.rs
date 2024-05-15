@@ -1,4 +1,6 @@
 use actix_web::{get, post, delete, App, HttpResponse, HttpServer, Responder};
+use actix_web::web::Data;
+use sqlx::{postgres::PgPoolOptions, Postgres, Pool};
 use crate::data::service;
 mod data;
 mod models;
@@ -7,8 +9,19 @@ mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
+    let pool: Pool<Postgres> = PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://username:password@localhost/postgres-db")
+        .await
+        .expect("failed to create database connection pool");
+
+    HttpServer::new(move || {
         App::new()
+            .app_data(Data::new(pool.clone()))
+            .service(db_up)
+            .service(db_down)
+            .service(auth)
+            .service(post_account)
             .service(post_task)
             .service(post_task_group)
             .service(get_board)
@@ -22,7 +35,45 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
+#[get("/admin/dbUp")]
+async fn db_up(data_pool: Data<Pool<Postgres>>) -> impl Responder {
+    let db_up_result = service::db_up(data_pool).await;
+    match db_up_result {
+        Ok(pg_query_result) => HttpResponse::Ok()
+            .body(format!("database initialized - rows affected: {}", pg_query_result.rows_affected())),
+        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
+    }
+}
+
+#[get("/admin/dbDown")]
+async fn db_down(data_pool: Data<Pool<Postgres>>) -> impl Responder {
+    let db_down_result = service::db_down(data_pool).await;
+    match db_down_result {
+        Ok(pg_query_result) => HttpResponse::Ok()
+            .body(format!("database dropped - rows affected: {}", pg_query_result.rows_affected())),
+        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
+    }
+}
+
+#[post("/auth")]
+async fn auth(user_name: String, password: String) -> impl Responder {
+    //let _account = service::get_account(user_name, password);
+    HttpResponse::Ok().body("authenticated")
+}
+
 // CRUD operations: Create, Read, Update, & Delete
+
+// Create
+#[post("/addAccount")] 
+async fn post_account(data_pool: Data<Pool<Postgres>>, username: String, password: String) 
+    -> impl Responder {
+    let add_account_result = service::add_account(data_pool, username, password).await;
+    match add_account_result {
+        Ok(pg_query_result) => HttpResponse::Ok()
+            .body(format!("account inserted - rows affected: {}", pg_query_result.rows_affected())),
+        Err(error) => HttpResponse::InternalServerError().body(error.to_string()),
+    }
+}
 
 // Create
 #[post("/addTask")]

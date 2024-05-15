@@ -5,7 +5,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize)]
 pub struct Board {
     pub board_id: u32,
-    pub user_id: u32,
+    pub account_id: u32,
     pub task_groups: Vec<TaskGroup>,
     pub tasks: Vec<Task>,
 }
