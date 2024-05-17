@@ -4,10 +4,16 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Board {
-    pub board_id: u32,
-    pub account_id: u32,
+    pub board_id: i32,
+    pub account_id: i32,
     pub task_groups: Vec<TaskGroup>,
     pub tasks: Vec<Task>,
+}
+
+#[derive(Deserialize)]
+pub struct BoardRequest {
+    pub board_id: i32,
+    pub account_id: i32,
 }
 
 impl Board {

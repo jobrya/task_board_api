@@ -6,14 +6,12 @@ CREATE TABLE task_board.account (
     username TEXT NOT NULL,
     pass TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
-    --updated_at TIMESTAMP
 );
 
 CREATE TABLE task_board.board (
     board_id SERIAL PRIMARY KEY,
     account_id INTEGER REFERENCES task_board.account(account_id),
     created_at TIMESTAMP DEFAULT NOW()
-    --updated_at TIMESTAMP
 );
 
 CREATE TABLE task_board.task_group (
@@ -21,7 +19,6 @@ CREATE TABLE task_board.task_group (
     board_id INTEGER REFERENCES task_board.board(board_id),
     group_name TEXT,
     created_at TIMESTAMP DEFAULT NOW()
-    --updated_at TIMESTAMP
 );
 
 CREATE TABLE task_board.task (
@@ -29,5 +26,4 @@ CREATE TABLE task_board.task (
     task_group_id INTEGER REFERENCES task_board.task_group(task_group_id),
     task_text TEXT,
     created_at TIMESTAMP DEFAULT NOW()
-    --updated_at TIMESTAMP
 );
